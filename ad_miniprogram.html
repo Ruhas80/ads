@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реклама</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Подключаем CSS с параметром версии (cache busting) -->
+    <link rel="stylesheet" href="styles.css?v=<?=time()?>">
+    
+    <!-- Подключаем JS с параметром версии (cache busting) -->
+    <script src="app.js?v=<?=time()?>"></script>
+</head>
+<body>
+    <h1>Просмотрите рекламу</h1>
+    <p>Реклама помогает нам поддерживать бота. Спасибо за понимание!</p>
+    <p id="timer">До появления кнопки осталось 15 секунд</p>
+    <button id="completeAd" onclick="completeAd()" disabled>Я просмотрел рекламу</button>
+
+    <script>
+        // Пример использования fetch для загрузки с отключением кэширования
+        fetch('https://film-series.ru/ad_miniprogram.html', {
+            method: 'GET',
+            cache: 'no-store'
+        });
+
+        let timeLeft = 15;
+        const timerElement = document.getElementById("timer");
+        const buttonElement = document.getElementById("completeAd");
+
+        // Таймер обратного отсчета для активации кнопки
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = `До появления кнопки осталось ${timeLeft} секунд`;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerElement.style.display = "none";
+                buttonElement.disabled = false; // Активируем кнопку
+            }
+        }, 1000);
+
+        // Функция для завершения рекламы
+        function completeAd() {
+            // Получаем film_id из URL-параметров
+            const urlParams = new URLSearchParams(window.location.search);
+            const filmId = urlParams.get('film_id') || 'unknown';
+            const dataToSend = `ad_watched_${filmId}`;
+            Telegram.WebApp.sendData(dataToSend); // Отправляем данные в Web App
+            Telegram.WebApp.close(); // Закрываем Web App после завершения просмотра
+        }
+    </script>
+</body>
+</html>
